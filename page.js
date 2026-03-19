@@ -1005,7 +1005,7 @@
         height: 18px;
         flex: 0 0 18px;
         border-radius: 999px;
-        background: radial-gradient(circle at 38% 28%, #585174 0%, #312c48 100%);
+        background: radial-gradient(circle at 38% 28%, #5a5476 0%, #2d2942 100%);
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 3px 8px rgba(0, 0, 0, 0.22);
         overflow: hidden;
       }
@@ -1013,23 +1013,29 @@
       .dq-queue-player__brand-mark::before {
         content: "";
         position: absolute;
-        left: 3px;
-        top: 3px;
-        width: 9px;
-        height: 9px;
+        left: 2px;
+        top: 2px;
+        width: 14px;
+        height: 14px;
         border-radius: 999px;
-        background: radial-gradient(circle at 35% 28%, #ffe68f 0%, #ffbe63 46%, #ff5f8a 100%);
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12)) center / 100% 1px no-repeat,
+          radial-gradient(ellipse 34% 100% at 50% 50%, transparent 58%, rgba(255, 255, 255, 0.14) 61%, transparent 64%),
+          radial-gradient(ellipse 100% 34% at 50% 50%, transparent 58%, rgba(255, 255, 255, 0.12) 61%, transparent 64%),
+          radial-gradient(circle at 36% 30%, #66749b 0%, #43506f 54%, #2d3957 100%);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
       }
 
       .dq-queue-player__brand-mark::after {
         content: "";
         position: absolute;
-        right: 2px;
-        bottom: 2px;
+        left: 8px;
+        top: 5px;
         width: 6px;
-        height: 6px;
-        border-radius: 999px;
-        background: linear-gradient(135deg, #ffa0e5, #875bff);
+        height: 8px;
+        background: linear-gradient(180deg, #ffe994, #ffbf63 58%, #ff6f91);
+        clip-path: polygon(0 0, 100% 50%, 0 100%);
+        filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.2));
       }
 
       .dq-queue-player__title {
