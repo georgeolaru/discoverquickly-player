@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Discover Quickly Queue Player",
+  "version": "0.1.0",
+  "description": "Autoplay preview tracks inside Discover Quickly playlist cards and bookmark interesting finds.",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://discoverquickly.com/*"
+      ],
+      "js": [
+        "page.js"
+      ],
+      "run_at": "document_idle",
+      "world": "MAIN"
+    }
+  ]
+}
