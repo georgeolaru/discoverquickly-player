@@ -993,6 +993,34 @@
         gap: 8px;
       }
 
+      .dq-queue-player__brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .dq-queue-player__brand-mark {
+        position: relative;
+        width: 18px;
+        height: 18px;
+        flex: 0 0 18px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 35% 28%, #ffe27a 0%, #ffb55f 42%, #ff5c8a 100%);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.22);
+      }
+
+      .dq-queue-player__brand-mark::after {
+        content: "";
+        position: absolute;
+        right: -3px;
+        bottom: -3px;
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #ff8ad8, #7c54ff);
+        box-shadow: 0 0 0 2px rgba(19, 18, 30, 0.94);
+      }
+
       .dq-queue-player__title {
         font-size: 15px;
         font-weight: 700;
@@ -1263,11 +1291,14 @@
     state.panelRoot.innerHTML = `
       <div class="dq-queue-player__inner">
         <div class="dq-queue-player__header">
-          <div>
-            <div class="dq-queue-player__title">DQ Queue</div>
-            <div class="dq-queue-player__subtitle">${escapeHtml(
-              selectedCard ? `${selectedCard.tracks.length} previews ready on this source.` : DEFAULT_STATUS
-            )}</div>
+          <div class="dq-queue-player__brand">
+            <div class="dq-queue-player__brand-mark" aria-hidden="true"></div>
+            <div>
+              <div class="dq-queue-player__title">DQ Queue</div>
+              <div class="dq-queue-player__subtitle">${escapeHtml(
+                selectedCard ? `${selectedCard.tracks.length} previews ready on this source.` : DEFAULT_STATUS
+              )}</div>
+            </div>
           </div>
           <button type="button" class="dq-queue-player__refresh" data-action="refresh">Refresh</button>
         </div>

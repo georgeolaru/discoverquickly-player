@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Discover Quickly Queue Player icon</title>
+  <desc id="desc">A Discover Quickly-inspired warm orb with a violet echo on an indigo tile.</desc>
+  <defs>
+    <linearGradient id="tile" x1="8" y1="8" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4f496f"/>
+      <stop offset="1" stop-color="#322d49"/>
+    </linearGradient>
+    <radialGradient id="orb" cx="42" cy="38" r="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffe27a"/>
+      <stop offset="0.48" stop-color="#ffb758"/>
+      <stop offset="1" stop-color="#ff5c8a"/>
+    </radialGradient>
+    <linearGradient id="echo" x1="61" y1="62" x2="88" y2="94" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff8ad8"/>
+      <stop offset="1" stop-color="#7c54ff"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="8" y="8" width="112" height="112" rx="30" fill="url(#tile)"/>
+
+  <circle cx="72" cy="72" r="18" fill="url(#echo)"/>
+  <circle cx="52" cy="50" r="26" fill="url(#orb)"/>
+
+  <path
+    d="M34 42c8-11 24-15 37-10 7 2 14 8 18 16-5-4-11-7-18-8-9-1-18 1-27 6-4 2-8 5-12 9 0-5 1-9 2-13z"
+    fill="#fff"
+    opacity="0.18"
+  />
+  <circle cx="44" cy="41" r="9" fill="#fff" opacity="0.12"/>
+  <circle cx="72" cy="72" r="4" fill="#fff" opacity="0.18"/>
+</svg>
