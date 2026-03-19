@@ -1005,8 +1005,10 @@
         height: 18px;
         flex: 0 0 18px;
         border-radius: 999px;
-        background: radial-gradient(circle at 38% 28%, #5a5476 0%, #2d2942 100%);
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 3px 8px rgba(0, 0, 0, 0.22);
+        background:
+          radial-gradient(circle at 72% 78%, rgba(83, 58, 133, 0) 56%, rgba(83, 58, 133, 0.34) 100%),
+          radial-gradient(circle at 36% 30%, #ffffff 0%, #f5ebff 46%, #d8c7ff 100%);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22), 0 3px 8px rgba(0, 0, 0, 0.18);
         overflow: hidden;
       }
 
@@ -1019,23 +1021,22 @@
         height: 14px;
         border-radius: 999px;
         background:
-          linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12)) center / 100% 1px no-repeat,
-          radial-gradient(ellipse 34% 100% at 50% 50%, transparent 58%, rgba(255, 255, 255, 0.14) 61%, transparent 64%),
-          radial-gradient(ellipse 100% 34% at 50% 50%, transparent 58%, rgba(255, 255, 255, 0.12) 61%, transparent 64%),
-          radial-gradient(circle at 36% 30%, #66749b 0%, #43506f 54%, #2d3957 100%);
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+          radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.2) 18%, transparent 34%),
+          radial-gradient(circle at 24% 22%, #7d2fff 0%, transparent 36%),
+          radial-gradient(circle at 22% 78%, #ffca3e 0%, #ff8a42 34%, transparent 54%),
+          radial-gradient(circle at 52% 84%, #ff3ecf 0%, transparent 34%),
+          radial-gradient(circle at 84% 22%, #45ebff 0%, transparent 38%),
+          radial-gradient(circle at 84% 72%, #8b5bff 0%, transparent 34%);
+        filter: blur(0.2px);
       }
 
       .dq-queue-player__brand-mark::after {
         content: "";
         position: absolute;
-        left: 8px;
-        top: 5px;
-        width: 6px;
-        height: 8px;
-        background: linear-gradient(180deg, #ffe994, #ffbf63 58%, #ff6f91);
-        clip-path: polygon(0 0, 100% 50%, 0 100%);
-        filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.2));
+        inset: 2px;
+        border-radius: 999px;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0) 34%);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
       }
 
       .dq-queue-player__title {

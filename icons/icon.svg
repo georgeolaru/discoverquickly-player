@@ -1,45 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
   <title id="title">Discover Quickly Queue Player icon</title>
-  <desc id="desc">A circular indigo badge with a simplified 3D globe and a warm play symbol.</desc>
+  <desc id="desc">A colorful Siri-inspired orb inside a circle.</desc>
   <defs>
-    <radialGradient id="badge" cx="38%" cy="28%" r="78%">
-      <stop offset="0" stop-color="#5a5476"/>
-      <stop offset="1" stop-color="#2d2942"/>
-    </radialGradient>
-    <radialGradient id="globe" cx="36%" cy="30%" r="72%">
-      <stop offset="0" stop-color="#67759c"/>
-      <stop offset="0.52" stop-color="#43516f"/>
-      <stop offset="1" stop-color="#2d3957"/>
-    </radialGradient>
-    <linearGradient id="play" x1="54" y1="48" x2="78" y2="82" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ffe994"/>
-      <stop offset="0.5" stop-color="#ffbf63"/>
-      <stop offset="1" stop-color="#ff6f91"/>
-    </linearGradient>
-    <clipPath id="globeClip">
-      <circle cx="64" cy="64" r="30"/>
+    <clipPath id="orbClip">
+      <circle cx="64" cy="64" r="46"/>
     </clipPath>
+    <filter id="softBlur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    <radialGradient id="base" cx="36%" cy="30%" r="78%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.46" stop-color="#f5ebff"/>
+      <stop offset="1" stop-color="#d8c7ff"/>
+    </radialGradient>
+    <radialGradient id="edge" cx="72%" cy="78%" r="74%">
+      <stop offset="0.58" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#533a85" stop-opacity="0.34"/>
+    </radialGradient>
   </defs>
 
-  <circle cx="64" cy="64" r="46" fill="url(#badge)"/>
-  <circle cx="64" cy="64" r="45" fill="none" stroke="#ffffff" stroke-opacity="0.08"/>
+  <circle cx="64" cy="64" r="46" fill="url(#base)"/>
 
-  <circle cx="64" cy="64" r="30" fill="url(#globe)"/>
-  <circle cx="64" cy="64" r="29" fill="none" stroke="#ffffff" stroke-opacity="0.12"/>
-
-  <g clip-path="url(#globeClip)" fill="none" stroke="#ffffff" stroke-opacity="0.14">
-    <ellipse cx="64" cy="64" rx="17" ry="30"/>
-    <ellipse cx="64" cy="64" rx="8" ry="30"/>
-    <ellipse cx="64" cy="64" rx="30" ry="11"/>
-    <ellipse cx="64" cy="64" rx="30" ry="20"/>
+  <g clip-path="url(#orbClip)" filter="url(#softBlur)">
+    <circle cx="39" cy="39" r="28" fill="#7d2fff" fill-opacity="0.92"/>
+    <circle cx="35" cy="84" r="27" fill="#ffca3e" fill-opacity="0.96"/>
+    <circle cx="66" cy="87" r="27" fill="#ff3ecf" fill-opacity="0.94"/>
+    <circle cx="93" cy="34" r="29" fill="#45ebff" fill-opacity="0.94"/>
+    <circle cx="92" cy="78" r="27" fill="#8b5bff" fill-opacity="0.88"/>
+    <ellipse cx="73" cy="56" rx="42" ry="20" fill="#ff8a42" fill-opacity="0.62" transform="rotate(-28 73 56)"/>
+    <ellipse cx="58" cy="58" rx="34" ry="18" fill="#ffffff" fill-opacity="0.22" transform="rotate(-40 58 58)"/>
   </g>
 
-  <path
-    d="M44 46c6-8 17-13 27-12 8 0 16 4 22 11-7-3-13-4-20-4-11 1-21 5-29 13-2 2-4 4-6 7 0-5 2-11 6-15z"
-    fill="#ffffff"
-    opacity="0.15"
-  />
-
-  <path d="M58 49v30l24-15z" fill="url(#play)"/>
-  <path d="M61 53v22l18-11z" fill="#ffffff" opacity="0.12"/>
+  <circle cx="64" cy="64" r="46" fill="url(#edge)"/>
+  <ellipse cx="46" cy="41" rx="22" ry="14" fill="#ffffff" fill-opacity="0.24" transform="rotate(-28 46 41)"/>
+  <circle cx="64" cy="64" r="45" fill="none" stroke="#ffffff" stroke-opacity="0.22"/>
 </svg>

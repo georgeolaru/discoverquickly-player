@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Discover Quickly Queue Player",
-  "version": "0.1.3",
+  "version": "0.1.5",
   "description": "Autoplay preview tracks inside Discover Quickly playlist cards and bookmark interesting finds.",
   "icons": {
     "16": "icons/icon16.png",
