@@ -21,6 +21,8 @@
   const PANEL_ID = "dq-queue-player-panel";
   const STYLE_ID = "dq-queue-player-style";
   const JUMP_FLASH_MS = 1200;
+  const REFRESH_DELAY_MS = 120;
+  const USER_ACTION_REFRESH_DELAY_MS = 220;
 
   const state = {
     audio: new Audio(),
@@ -789,7 +791,12 @@
 
   function scheduleRefresh() {
     window.clearTimeout(state.refreshTimer);
-    state.refreshTimer = window.setTimeout(refreshCards, 120);
+    state.refreshTimer = window.setTimeout(refreshCards, REFRESH_DELAY_MS);
+  }
+
+  function scheduleRefreshSoon(delay = USER_ACTION_REFRESH_DELAY_MS) {
+    window.clearTimeout(state.refreshTimer);
+    state.refreshTimer = window.setTimeout(refreshCards, delay);
   }
 
   function isExtensionNode(node) {
@@ -867,22 +874,50 @@
       .join("");
   }
 
+  function upsertInlineLauncher(source) {
+    if (!source.launchTarget?.isConnected) {
+      return;
+    }
+
+    const actionState = getInlineActionState(source);
+    const existingButton = [...source.launchTarget.children].find((child) => child.matches?.(INLINE_ACTION_SELECTOR));
+    const button = existingButton || document.createElement("button");
+
+    button.type = "button";
+    button.className = `dq-queue-player-inline-action${actionState.active ? " is-active" : ""}`;
+    button.dataset.dqQueueInlineAction = actionState.mode;
+    button.dataset.dqQueueCardKey = source.key;
+    button.textContent = actionState.label;
+
+    if (!existingButton) {
+      source.launchTarget.appendChild(button);
+    }
+  }
+
   function renderInlineLaunchers() {
-    document.querySelectorAll(INLINE_ACTION_SELECTOR).forEach((button) => button.remove());
+    if (state.cards.some((source) => source.launchTarget && !source.launchTarget.isConnected)) {
+      scheduleRefresh();
+      return;
+    }
+
+    const activeTargets = new Set();
+    const activeKeys = new Set();
 
     state.cards.forEach((source) => {
       if (!source.launchTarget?.isConnected) {
         return;
       }
 
-      const actionState = getInlineActionState(source);
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = `dq-queue-player-inline-action${actionState.active ? " is-active" : ""}`;
-      button.dataset.dqQueueInlineAction = actionState.mode;
-      button.dataset.dqQueueCardKey = source.key;
-      button.textContent = actionState.label;
-      source.launchTarget.appendChild(button);
+      activeTargets.add(source.launchTarget);
+      activeKeys.add(source.key);
+      upsertInlineLauncher(source);
+    });
+
+    document.querySelectorAll(INLINE_ACTION_SELECTOR).forEach((button) => {
+      const parent = button.parentElement;
+      if (!parent || !activeTargets.has(parent) || !activeKeys.has(button.dataset.dqQueueCardKey || "")) {
+        button.remove();
+      }
     });
   }
 
@@ -1294,6 +1329,45 @@
     await playSourceByKey(cardKey, { restart: true });
   }
 
+  function handleDocumentInteraction(event) {
+    if (isExtensionNode(event.target)) {
+      return;
+    }
+
+    scheduleRefreshSoon();
+  }
+
+  function handleWindowFocus() {
+    scheduleRefreshSoon();
+  }
+
+  function handleVisibilityChange() {
+    if (document.visibilityState === "visible") {
+      scheduleRefresh();
+    }
+  }
+
+  function installHistoryRefreshHooks() {
+    if (window.__dqQueuePlayerHistoryHooksInstalled) {
+      return;
+    }
+
+    window.__dqQueuePlayerHistoryHooksInstalled = true;
+
+    ["pushState", "replaceState"].forEach((methodName) => {
+      const original = history[methodName];
+      if (typeof original !== "function") {
+        return;
+      }
+
+      history[methodName] = function patchedHistoryMethod(...args) {
+        const result = original.apply(this, args);
+        scheduleRefresh();
+        return result;
+      };
+    });
+  }
+
   function handlePanelClick(event) {
     const button = event.target.closest("button[data-action]");
     if (!button) {
@@ -1387,9 +1461,15 @@
 
   window.addEventListener("keydown", handleKeydown, true);
   document.addEventListener("click", handleInlineActionClick, true);
+  document.addEventListener("click", handleDocumentInteraction, true);
   document.addEventListener("mouseover", handlePlayableMouseOver, true);
   document.addEventListener("mouseout", handlePlayableMouseOut, true);
+  window.addEventListener("scroll", handleDocumentInteraction, true);
+  window.addEventListener("focus", handleWindowFocus, true);
+  window.addEventListener("hashchange", handleWindowFocus, true);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
   installMediaSessionHandlers();
+  installHistoryRefreshHooks();
   attachObserver();
   refreshCards();
 })();
