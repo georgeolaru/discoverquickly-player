@@ -9,10 +9,17 @@ Small Chrome extension for `https://discoverquickly.com/` that:
 
 ## Install
 
-1. Open `chrome://extensions`.
-2. Enable **Developer mode**.
-3. Click **Load unpacked**.
-4. Select the cloned `discoverquickly-player` folder on your machine.
+The extension is not published in the Chrome Web Store yet, so install it from source:
+
+1. Download this repository:
+   - Clone it with `git clone https://github.com/georgeolaru/discoverquickly-player.git`, or
+   - Click **Code > Download ZIP** on GitHub and unzip it locally.
+2. Open `chrome://extensions` in Chrome.
+3. Enable **Developer mode** in the top-right corner.
+4. Click **Load unpacked**.
+5. Select the project folder that contains `manifest.json`.
+
+If you update the extension later, pull the latest changes or re-download the ZIP, then click the refresh icon for the extension in `chrome://extensions`.
 
 ## Use
 
