@@ -3,7 +3,7 @@
 Small Chrome extension for `https://discoverquickly.com/` that:
 
 - plays every preview in the current queue source one after another
-- also works for artist-card sections such as `Top Tracks`, `Albums`, and `Singles & Compilations`
+- also works for artist-card sections such as `Top Tracks`, `Albums`, `Singles & Compilations`, and `Related Artists`
 - keeps its own `Audio()` queue instead of depending on hover playback
 - lets you bookmark interesting tracks and jump back to them later
 

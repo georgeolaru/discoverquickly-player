@@ -9,7 +9,13 @@
     notes: "dq-queue-player-notes-v1",
     selectedCard: "dq-queue-player-selected-card-v1"
   };
-  const ARTIST_SECTION_TITLES = new Set(["Top Tracks", "Albums", "Singles & Compilations", "Appears On"]);
+  const ARTIST_SECTION_TITLES = new Set([
+    "Top Tracks",
+    "Albums",
+    "Singles & Compilations",
+    "Appears On",
+    "Related Artists"
+  ]);
   const DEFAULT_STATUS = "Waiting for a queueable section...";
   const INLINE_ACTION_SELECTOR = "[data-dq-queue-inline-action]";
   const PANEL_ID = "dq-queue-player-panel";
@@ -94,6 +100,27 @@
     return key ? element[key] : null;
   }
 
+  function findReactPropsInTree(element) {
+    if (!element) {
+      return null;
+    }
+
+    const directProps = findReactProps(element);
+    if (directProps) {
+      return directProps;
+    }
+
+    const descendants = element.querySelectorAll("*");
+    for (let index = 0; index < descendants.length && index < 12; index += 1) {
+      const nestedProps = findReactProps(descendants[index]);
+      if (nestedProps) {
+        return nestedProps;
+      }
+    }
+
+    return null;
+  }
+
   function isTrackProps(value) {
     return Boolean(
       value &&
@@ -157,7 +184,7 @@
   }
 
   function extractTrackProps(playableElement) {
-    const reactProps = findReactProps(playableElement);
+    const reactProps = findReactPropsInTree(playableElement);
     if (!reactProps) {
       return null;
     }
@@ -194,6 +221,14 @@
       previewUrl: props.previewUrl,
       trackName: normalizeText(props.captionData?.track_name || `Track ${index + 1}`)
     };
+  }
+
+  function isQueueableArtistSectionElement(element) {
+    return Boolean(
+      element &&
+        element.classList &&
+        (element.classList.contains("playable") || element.classList.contains("playable-artist"))
+    );
   }
 
   function createSource({ coverUrl = "", element, key, launchTarget = null, title, tracks }) {
@@ -270,7 +305,7 @@
           continue;
         }
 
-        if (!ARTIST_SECTION_TITLES.has(currentSection) || !element.classList?.contains("playable")) {
+        if (!ARTIST_SECTION_TITLES.has(currentSection) || !isQueueableArtistSectionElement(element)) {
           continue;
         }
 
