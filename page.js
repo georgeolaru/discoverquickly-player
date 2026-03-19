@@ -1005,20 +1005,31 @@
         height: 18px;
         flex: 0 0 18px;
         border-radius: 999px;
-        background: radial-gradient(circle at 35% 28%, #ffe27a 0%, #ffb55f 42%, #ff5c8a 100%);
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.22);
+        background: radial-gradient(circle at 38% 28%, #585174 0%, #312c48 100%);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 3px 8px rgba(0, 0, 0, 0.22);
+        overflow: hidden;
+      }
+
+      .dq-queue-player__brand-mark::before {
+        content: "";
+        position: absolute;
+        left: 3px;
+        top: 3px;
+        width: 9px;
+        height: 9px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 35% 28%, #ffe68f 0%, #ffbe63 46%, #ff5f8a 100%);
       }
 
       .dq-queue-player__brand-mark::after {
         content: "";
         position: absolute;
-        right: -3px;
-        bottom: -3px;
-        width: 10px;
-        height: 10px;
+        right: 2px;
+        bottom: 2px;
+        width: 6px;
+        height: 6px;
         border-radius: 999px;
-        background: linear-gradient(135deg, #ff8ad8, #7c54ff);
-        box-shadow: 0 0 0 2px rgba(19, 18, 30, 0.94);
+        background: linear-gradient(135deg, #ffa0e5, #875bff);
       }
 
       .dq-queue-player__title {

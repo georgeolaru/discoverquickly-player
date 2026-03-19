@@ -1,32 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
   <title id="title">Discover Quickly Queue Player icon</title>
-  <desc id="desc">A Discover Quickly-inspired warm orb with a violet echo on an indigo tile.</desc>
+  <desc id="desc">A simplified Discover Quickly-inspired circular badge with a warm orb and violet echo.</desc>
   <defs>
-    <linearGradient id="tile" x1="8" y1="8" x2="120" y2="120" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#4f496f"/>
-      <stop offset="1" stop-color="#322d49"/>
-    </linearGradient>
-    <radialGradient id="orb" cx="42" cy="38" r="34" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ffe27a"/>
-      <stop offset="0.48" stop-color="#ffb758"/>
-      <stop offset="1" stop-color="#ff5c8a"/>
+    <radialGradient id="badge" cx="40%" cy="30%" r="75%">
+      <stop offset="0" stop-color="#575173"/>
+      <stop offset="1" stop-color="#312c48"/>
     </radialGradient>
-    <linearGradient id="echo" x1="61" y1="62" x2="88" y2="94" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ff8ad8"/>
-      <stop offset="1" stop-color="#7c54ff"/>
+    <radialGradient id="orb" cx="38%" cy="28%" r="72%">
+      <stop offset="0" stop-color="#ffe68f"/>
+      <stop offset="0.46" stop-color="#ffbe63"/>
+      <stop offset="1" stop-color="#ff5f8a"/>
+    </radialGradient>
+    <linearGradient id="echo" x1="49" y1="55" x2="82" y2="85" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffa0e5"/>
+      <stop offset="1" stop-color="#875bff"/>
     </linearGradient>
+    <clipPath id="badgeClip">
+      <circle cx="64" cy="64" r="46"/>
+    </clipPath>
   </defs>
 
-  <rect x="8" y="8" width="112" height="112" rx="30" fill="url(#tile)"/>
+  <circle cx="64" cy="64" r="46" fill="url(#badge)"/>
+  <circle cx="64" cy="64" r="45" fill="none" stroke="#ffffff" stroke-opacity="0.08"/>
 
-  <circle cx="72" cy="72" r="18" fill="url(#echo)"/>
-  <circle cx="52" cy="50" r="26" fill="url(#orb)"/>
-
-  <path
-    d="M34 42c8-11 24-15 37-10 7 2 14 8 18 16-5-4-11-7-18-8-9-1-18 1-27 6-4 2-8 5-12 9 0-5 1-9 2-13z"
-    fill="#fff"
-    opacity="0.18"
-  />
-  <circle cx="44" cy="41" r="9" fill="#fff" opacity="0.12"/>
-  <circle cx="72" cy="72" r="4" fill="#fff" opacity="0.18"/>
+  <g clip-path="url(#badgeClip)">
+    <circle cx="52" cy="52" r="23" fill="url(#orb)"/>
+    <circle cx="76" cy="74" r="15" fill="url(#echo)"/>
+    <path
+      d="M36 45c7-9 19-13 30-11 9 2 17 7 22 16-6-4-11-6-18-7-10-1-20 2-30 10-3 2-5 4-7 6 0-5 1-10 3-14z"
+      fill="#fff"
+      opacity="0.18"
+    />
+    <circle cx="46" cy="44" r="8" fill="#fff" opacity="0.12"/>
+    <circle cx="76" cy="74" r="3.5" fill="#fff" opacity="0.2"/>
+  </g>
 </svg>
