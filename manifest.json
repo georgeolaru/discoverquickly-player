@@ -24,6 +24,7 @@
         "https://discoverquickly.com/*"
       ],
       "js": [
+        "page-logic.js",
         "page.js"
       ],
       "run_at": "document_idle",

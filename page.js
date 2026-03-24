@@ -9,13 +9,6 @@
     notes: "dq-queue-player-notes-v1",
     selectedCard: "dq-queue-player-selected-card-v1"
   };
-  const ARTIST_SECTION_TITLES = new Set([
-    "Top Tracks",
-    "Albums",
-    "Singles & Compilations",
-    "Appears On",
-    "Related Artists"
-  ]);
   const DEFAULT_STATUS = "Waiting for a queueable section...";
   const INLINE_ACTION_SELECTOR = "[data-dq-queue-inline-action]";
   const PANEL_ID = "dq-queue-player-panel";
@@ -23,6 +16,48 @@
   const JUMP_FLASH_MS = 1200;
   const REFRESH_DELAY_MS = 120;
   const USER_ACTION_REFRESH_DELAY_MS = 220;
+  const EMPTY_GRACE_MS = 400;
+  const PARTIAL_SCAN_GRACE_MS = 500;
+  const {
+    attachPanelEventListeners = (panelDoc, handlers) => {
+      panelDoc.addEventListener("click", handlers.onClick);
+      panelDoc.addEventListener("change", handlers.onChange);
+      panelDoc.addEventListener("keydown", handlers.onKeydown, true);
+    },
+    getHotkeyAction = ({ altKey, code, ctrlKey, defaultPrevented, isTypingTarget, key, metaKey }) => {
+      if (defaultPrevented || altKey || ctrlKey || metaKey || isTypingTarget) {
+        return null;
+      }
+
+      if (code === "Space") {
+        return "toggle";
+      }
+
+      const normalizedKey = String(key || "").toLowerCase();
+      if (normalizedKey === "j") {
+        return "prev";
+      }
+
+      if (normalizedKey === "k") {
+        return "next";
+      }
+
+      if (normalizedKey === "b") {
+        return "bookmark";
+      }
+
+      return null;
+    },
+    getPartialScanHold = () => ({
+      hold: false,
+      partialKey: "",
+      partialSince: 0,
+      retryInMs: 0
+    }),
+    normalizeSectionTitle = (sectionTitle) => String(sectionTitle || "").trim(),
+    shouldUpdateInlineAction = () => true,
+    shouldQueueSection = () => false
+  } = globalThis.__DQQueuePlayerLogic || {};
 
   const state = {
     audio: new Audio(),
@@ -37,6 +72,9 @@
     panel: null,
     panelDoc: null,
     panelRoot: null,
+    emptyGraceTimer: 0,
+    partialScanKey: "",
+    partialScanSince: 0,
     refreshTimer: 0,
     selectedCardKey: localStorage.getItem(STORAGE_KEYS.selectedCard) || "",
     status: DEFAULT_STATUS
@@ -93,6 +131,18 @@
     const backgroundImage = getComputedStyle(element).backgroundImage || "";
     const match = backgroundImage.match(/url\("?(.*?)"?\)/);
     return match ? match[1] : "";
+  }
+
+  function getElementImageUrl(element) {
+    if (!element) {
+      return "";
+    }
+
+    if (element.tagName === "IMG") {
+      return element.currentSrc || element.src || "";
+    }
+
+    return getBackgroundImageUrl(element);
   }
 
   function findReactProps(element) {
@@ -225,7 +275,7 @@
     };
   }
 
-  function isQueueableArtistSectionElement(element) {
+  function isQueueableSectionElement(element) {
     return Boolean(
       element &&
         element.classList &&
@@ -270,7 +320,7 @@
           `Queue ${index + 1}`;
         const launchTarget = cardElement.querySelector(".playlist-name") || cardElement.querySelector("h1");
         const coverElement = cardElement.querySelector(".playlist-main-image .itemImg, .header .itemImg");
-        const coverUrl = coverElement ? getBackgroundImageUrl(coverElement) : "";
+        const coverUrl = getElementImageUrl(coverElement);
 
         return createSource({
           coverUrl,
@@ -288,7 +338,7 @@
     return [...document.querySelectorAll(".card-artist")].flatMap((cardElement, cardIndex) => {
       const title = getHeadingText(cardElement.querySelector("h1")) || `Artist ${cardIndex + 1}`;
       const coverElement = cardElement.querySelector(".playable-artist .itemImg");
-      const coverUrl = coverElement ? getBackgroundImageUrl(coverElement) : "";
+      const coverUrl = getElementImageUrl(coverElement);
       const container = cardElement.querySelector(".gridContainer");
       if (!container) {
         return [];
@@ -302,12 +352,12 @@
       while (walker.nextNode()) {
         const element = walker.currentNode;
         if (element.tagName === "H4") {
-          currentSection = normalizeText(element.textContent);
+          currentSection = normalizeSectionTitle(getHeadingText(element));
           currentHeadingElement = element;
           continue;
         }
 
-        if (!ARTIST_SECTION_TITLES.has(currentSection) || !isQueueableArtistSectionElement(element)) {
+        if (!shouldQueueSection("artist", currentSection) || !isQueueableSectionElement(element)) {
           continue;
         }
 
@@ -337,8 +387,61 @@
     });
   }
 
+  function scanAlbumSectionSources() {
+    return [...document.querySelectorAll(".card-album")].flatMap((cardElement, cardIndex) => {
+      const title = getHeadingText(cardElement.querySelector("h1")) || `Album ${cardIndex + 1}`;
+      const coverElement = cardElement.querySelector('img[alt="enlarged-hovered"], .header img, .itemImg, img');
+      const coverUrl = getElementImageUrl(coverElement);
+      const container = cardElement.querySelector(".gridContainer");
+      if (!container) {
+        return [];
+      }
+
+      const sections = new Map();
+      let currentSection = "";
+      let currentHeadingElement = null;
+      const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT);
+
+      while (walker.nextNode()) {
+        const element = walker.currentNode;
+        if (element.tagName === "H4") {
+          currentSection = normalizeSectionTitle(getHeadingText(element));
+          currentHeadingElement = element;
+          continue;
+        }
+
+        if (!shouldQueueSection("album", currentSection) || !isQueueableSectionElement(element)) {
+          continue;
+        }
+
+        const sectionData = sections.get(currentSection) || {
+          launchTarget: currentHeadingElement,
+          tracks: []
+        };
+        const track = extractTrack(element, sectionData.tracks.length);
+        if (!track) {
+          continue;
+        }
+
+        sectionData.tracks.push(track);
+        sections.set(currentSection, sectionData);
+      }
+
+      return [...sections.entries()].map(([sectionTitle, sectionData], sectionIndex) =>
+        createSource({
+          coverUrl,
+          element: cardElement,
+          key: [title, sectionTitle, coverUrl].filter(Boolean).join("::") || `album-${cardIndex}-${sectionIndex}`,
+          launchTarget: sectionData.launchTarget,
+          title: `${title} · ${sectionTitle}`,
+          tracks: sectionData.tracks
+        })
+      );
+    });
+  }
+
   function scanCards() {
-    return [...scanGridSources(), ...scanArtistSectionSources()];
+    return [...scanGridSources(), ...scanArtistSectionSources(), ...scanAlbumSectionSources()];
   }
 
   function persistNotes() {
@@ -764,7 +867,41 @@
 
   function refreshCards() {
     const previousTrackId = state.currentTrackId;
+    const hadCards = state.cards.length > 0;
     const cards = scanCards();
+
+    if (!cards.length && hadCards) {
+      if (!state.emptyGraceTimer) {
+        state.emptyGraceTimer = window.setTimeout(() => {
+          state.emptyGraceTimer = 0;
+          refreshCards();
+        }, EMPTY_GRACE_MS);
+      }
+      return;
+    }
+
+    window.clearTimeout(state.emptyGraceTimer);
+    state.emptyGraceTimer = 0;
+
+    const partialScanHold = getPartialScanHold({
+      graceMs: PARTIAL_SCAN_GRACE_MS,
+      now: Date.now(),
+      partialKey: state.partialScanKey,
+      partialSince: state.partialScanSince,
+      previousKeys: state.cards.map((card) => card.key),
+      nextKeys: cards.map((card) => card.key),
+      selectedCardKey: state.selectedCardKey
+    });
+
+    if (partialScanHold.hold) {
+      state.partialScanKey = partialScanHold.partialKey;
+      state.partialScanSince = partialScanHold.partialSince;
+      scheduleRefreshSoon(Math.max(80, partialScanHold.retryInMs));
+      return;
+    }
+
+    state.partialScanKey = "";
+    state.partialScanSince = 0;
 
     state.cards = cards;
 
@@ -881,13 +1018,35 @@
 
     const actionState = getInlineActionState(source);
     const existingButton = [...source.launchTarget.children].find((child) => child.matches?.(INLINE_ACTION_SELECTOR));
+    const nextButtonState = {
+      cardKey: source.key,
+      className: `dq-queue-player-inline-action${actionState.active ? " is-active" : ""}`,
+      label: actionState.label,
+      mode: actionState.mode
+    };
+
+    if (
+      existingButton &&
+      !shouldUpdateInlineAction(
+        {
+          cardKey: existingButton.dataset.dqQueueCardKey || "",
+          className: existingButton.className,
+          label: existingButton.textContent || "",
+          mode: existingButton.dataset.dqQueueInlineAction || ""
+        },
+        nextButtonState
+      )
+    ) {
+      return;
+    }
+
     const button = existingButton || document.createElement("button");
 
     button.type = "button";
-    button.className = `dq-queue-player-inline-action${actionState.active ? " is-active" : ""}`;
-    button.dataset.dqQueueInlineAction = actionState.mode;
-    button.dataset.dqQueueCardKey = source.key;
-    button.textContent = actionState.label;
+    button.className = nextButtonState.className;
+    button.dataset.dqQueueInlineAction = nextButtonState.mode;
+    button.dataset.dqQueueCardKey = nextButtonState.cardKey;
+    button.textContent = nextButtonState.label;
 
     if (!existingButton) {
       source.launchTarget.appendChild(button);
@@ -1269,8 +1428,11 @@
       state.panelDoc.write(getPanelFrameMarkup());
       state.panelDoc.close();
       state.panelRoot = state.panelDoc.getElementById("dq-queue-player-frame-root");
-      state.panelDoc.addEventListener("click", handlePanelClick);
-      state.panelDoc.addEventListener("change", handlePanelChange);
+      attachPanelEventListeners(state.panelDoc, {
+        onChange: handlePanelChange,
+        onClick: handlePanelClick,
+        onKeydown: handleKeydown
+      });
     }
   }
 
@@ -1306,7 +1468,7 @@
         `
       : '<div class="dq-queue-player__empty">No track selected yet.</div>';
 
-    state.panelRoot.innerHTML = `
+    const newHtml = `
       <div class="dq-queue-player__inner">
         <div class="dq-queue-player__header">
           <div class="dq-queue-player__brand">
@@ -1342,6 +1504,10 @@
         <div class="dq-queue-player__hint">Hotkeys: <code>Space</code> play/pause, <code>J</code>/<code>K</code> previous/next, <code>B</code> bookmark current.</div>
       </div>
     `;
+
+    if (state.panelRoot.innerHTML !== newHtml) {
+      state.panelRoot.innerHTML = newHtml;
+    }
 
     updateTrackHighlights();
     renderInlineLaunchers();
@@ -1467,32 +1633,37 @@
   }
 
   function handleKeydown(event) {
-    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || isTypingTarget(event.target)) {
+    const action = getHotkeyAction({
+      altKey: event.altKey,
+      code: event.code,
+      ctrlKey: event.ctrlKey,
+      defaultPrevented: event.defaultPrevented,
+      isTypingTarget: isTypingTarget(event.target),
+      key: event.key,
+      metaKey: event.metaKey
+    });
+
+    if (!action) {
       return;
     }
 
-    if (event.code === "Space") {
-      event.preventDefault();
-      togglePlayback();
-      return;
-    }
+    event.preventDefault();
 
-    const key = event.key.toLowerCase();
-    if (key === "j") {
-      event.preventDefault();
-      playRelative(-1);
-      return;
-    }
-
-    if (key === "k") {
-      event.preventDefault();
-      playRelative(1);
-      return;
-    }
-
-    if (key === "b") {
-      event.preventDefault();
-      bookmarkCurrentTrack();
+    switch (action) {
+      case "bookmark":
+        bookmarkCurrentTrack();
+        break;
+      case "next":
+        playRelative(1);
+        break;
+      case "prev":
+        playRelative(-1);
+        break;
+      case "toggle":
+        togglePlayback();
+        break;
+      default:
+        break;
     }
   }
 
